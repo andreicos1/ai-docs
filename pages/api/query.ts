@@ -6,7 +6,6 @@ import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { OpenAI } from "langchain/llms/openai";
 import { PromptTemplate } from "langchain/prompts";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
-import { NextRequest } from "next/server";
 import {
   ChatGPTMessage,
   OpenAIStream,
@@ -24,6 +23,13 @@ The code provided is relevant source code. This is NOT my code. It is SOURCE COD
 You must provide the answer in markdown format.
 Use the components that make the most sense in a production environment. Try to use the given components, not the ones making them up.
 `;
+
+const HEADERS_STREAM = {
+  "Access-Control-Allow-Origin": "*",
+  "Content-Type": "text/event-stream;charset=utf-8",
+  "Cache-Control": "no-cache, no-transform",
+  "X-Accel-Buffering": "no",
+};
 
 function initializeOpenAI() {
   return new OpenAI({
@@ -116,13 +122,15 @@ async function getMessages(
   return firstMessages;
 }
 
-export default async function handler(req: NextRequest) {
+export default async function handler(req: any) {
   try {
     const { query, conversationId } = await req.json();
     const model = initializeOpenAI();
     const pinecone = await initializePineCone();
     const pineconeIndex = await initializePineconeIndex(pinecone);
     const componentsToQuery = await getComponentsToVectorQuery(model, query);
+
+    console.log({ query, conversationId, pineconeIndex, componentsToQuery });
 
     if (!componentsToQuery.length) {
       return new Response(
@@ -144,13 +152,13 @@ export default async function handler(req: NextRequest) {
     };
 
     const stream = await OpenAIStream(conversationId, payload);
-    return new Response(stream);
+    return new Response(stream, { headers: HEADERS_STREAM });
   } catch (error) {
     console.log(error);
     return new Response("Error");
   }
 }
 
-// export const config = {
-//   runtime: "edge",
-// };
+export const config = {
+  runtime: "edge",
+};
