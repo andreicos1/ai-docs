@@ -4,6 +4,7 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { remark } from "remark";
 import html from "remark-html";
+import Layout from "../components/Layout";
 import SanitizeHTML from "../components/SanitizeHtml";
 import generateRandomString from "../utils/generateRandomString";
 
@@ -126,56 +127,58 @@ export default function Home() {
   };
 
   return (
-    <main className="mx-auto min-h-screen h-full max-w-7xl flex flex-col items-center px-6 sm:px-16 py-16 md:py-30">
-      <div className="w-full max-w-3xl relative">
-        <input
-          className="w-full rounded-md h-10 px-3 py-2 pr-9 bg-secondary focus:outline-none"
-          type="text"
-          placeholder="Ask me anything about UI Storefront"
-          value={userInput}
-          onKeyDown={handleKeyDown}
-          onChange={onChangeUserInput}
-        />
-        <button
-          className="absolute top-3 right-3"
-          onClick={() => handleSubmit()}
-        >
-          <IconSend className="fill-primary" />
-        </button>
-      </div>
-
-      {previousMessages.map(({ htmlContent, isUser }) => (
-        <div
-          key={generateRandomString()}
-          className={`w-full ${isUser ? "bg-transparent" : "bg-tertiary"}`}
-        >
-          <SanitizeHTML
-            className="flex-grow-1 px-0 sm:px-16 py-3 sm:py-5 leading-6 ai-answer md:py-8"
-            html={htmlContent}
-          />
-          <span className="inline-block w-full h-0.5 bg-black my-4"></span>
-        </div>
-      ))}
-      {getChatContent()}
-
-      {showFollupInput && (
-        <div className="w-full max-w-3xl relative mt-10 sm:mb-12 mb-10 sm:mb-16">
+    <Layout>
+      <main className="mx-auto min-h-screen h-full max-w-7xl flex flex-col items-center px-6 sm:px-16 py-16 md:py-30">
+        <div className="w-full max-w-3xl relative">
           <input
             className="w-full rounded-md h-10 px-3 py-2 pr-9 bg-secondary focus:outline-none"
             type="text"
-            placeholder="Follow up question"
-            value={followupInput}
-            onKeyDown={(e) => handleKeyDown(e, "chat")}
-            onChange={onChangeFollowupInput}
+            placeholder="Ask me anything about UI Storefront"
+            value={userInput}
+            onKeyDown={handleKeyDown}
+            onChange={onChangeUserInput}
           />
           <button
             className="absolute top-3 right-3"
-            onClick={() => handleSubmit("chat")}
+            onClick={() => handleSubmit()}
           >
             <IconSend className="fill-primary" />
           </button>
         </div>
-      )}
-    </main>
+
+        {previousMessages.map(({ htmlContent, isUser }) => (
+          <div
+            key={generateRandomString()}
+            className={`w-full ${isUser ? "bg-transparent" : "bg-tertiary"}`}
+          >
+            <SanitizeHTML
+              className="flex-grow-1 px-0 sm:px-16 py-3 sm:py-5 leading-6 ai-answer md:py-8"
+              html={htmlContent}
+            />
+            <span className="inline-block w-full h-0.5 bg-black my-4"></span>
+          </div>
+        ))}
+        {getChatContent()}
+
+        {showFollupInput && (
+          <div className="w-full max-w-3xl relative mt-10 sm:mb-12 mb-10 sm:mb-16">
+            <input
+              className="w-full rounded-md h-10 px-3 py-2 pr-9 bg-secondary focus:outline-none"
+              type="text"
+              placeholder="Follow up question"
+              value={followupInput}
+              onKeyDown={(e) => handleKeyDown(e, "chat")}
+              onChange={onChangeFollowupInput}
+            />
+            <button
+              className="absolute top-3 right-3"
+              onClick={() => handleSubmit("chat")}
+            >
+              <IconSend className="fill-primary" />
+            </button>
+          </div>
+        )}
+      </main>
+    </Layout>
   );
 }

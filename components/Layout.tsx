@@ -10,7 +10,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      {children}
+      <div className="bg-primary text-primary">{children}</div>
     </>
   );
 };
