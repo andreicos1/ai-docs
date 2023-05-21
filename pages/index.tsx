@@ -1,6 +1,6 @@
 import AiIcon from "public/ai-icon.svg";
 import IconUser from "public/icon-user.svg";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { remark } from "remark";
@@ -10,9 +10,7 @@ import SanitizeHTML from "../components/SanitizeHtml";
 import TextArea from "../components/TextArea";
 import generateRandomString from "../utils/generateRandomString";
 
-// TODO:
-// 1. If message stream is active, add option to stop it
-// 2. If new query is sent, delete current conversation, and start a new one
+// TODO: Move the chatHtml state to a child component
 
 const convertMarkdownToHtml = async (data: string) => {
   const processedContent = await remark().use(html).process(data);
@@ -25,6 +23,7 @@ type Message = {
 };
 
 export default function Home() {
+  const [generatingMessage, setGeneratingMessage] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [firstInput, setFirstInput] = useState<string>("");
   const [chatHtml, setChatHtml] = useState<string>("");
@@ -32,6 +31,7 @@ export default function Home() {
   const [followupInput, setFollowupInput] = useState<string>("");
   const [showFollupInput, setShowFollowupInput] = useState<boolean>(false);
   const [previousMessages, setPreviousMessages] = useState<Message[]>([]);
+  const controller = useRef<AbortController>(new AbortController());
 
   const onChangeFirstInput = (
     event: React.ChangeEvent<HTMLTextAreaElement>
@@ -47,13 +47,23 @@ export default function Home() {
 
   const handleSubmit = async (isFirstMessage: boolean) => {
     setLoading(true);
-    setPreviousMessages((previousMessages) => [
-      ...previousMessages,
-      {
-        htmlContent: isFirstMessage ? firstInput : followupInput,
-        isUser: true,
-      },
-    ]);
+    setGeneratingMessage(true);
+    setPreviousMessages((previousMessages) =>
+      isFirstMessage
+        ? [
+            {
+              htmlContent: firstInput,
+              isUser: true,
+            },
+          ]
+        : [
+            ...previousMessages,
+            {
+              htmlContent: followupInput,
+              isUser: true,
+            },
+          ]
+    );
 
     let newConversationId;
     if (isFirstMessage) {
@@ -69,6 +79,7 @@ export default function Home() {
         conversationId: isFirstMessage ? newConversationId : conversationId,
       }),
       headers: { "Content-Type": "application/json" },
+      signal: controller.current.signal,
     });
 
     const stream = response.body;
@@ -99,9 +110,17 @@ export default function Home() {
         ...previousMessages,
         { htmlContent, isUser: false },
       ]);
+      setGeneratingMessage(false);
       setChatHtml("");
       setShowFollowupInput(true);
     }
+  };
+
+  const handleStop = () => {
+    controller.current.abort();
+    controller.current = new AbortController();
+    setLoading(false);
+    setGeneratingMessage(false);
   };
 
   const getChatContent = () => {
@@ -132,8 +151,10 @@ export default function Home() {
 
   return (
     <Layout>
-      <main className="mx-auto bg-primaryLight min-h-screen h-full max-w-7xl flex flex-col items-center  py-8 md:py-12">
+      <main className="mx-auto bg-primaryLight min-h-screen h-full flex flex-col items-center  py-8 md:py-12">
         <TextArea
+          handleStop={handleStop}
+          generatingMessage={generatingMessage}
           isFirstMessage={true}
           onSubmit={handleSubmit}
           input={firstInput}
@@ -144,7 +165,7 @@ export default function Home() {
         {previousMessages.map(({ htmlContent, isUser }) => (
           <div
             key={generateRandomString()}
-            className={`flex items-center w-full p-5 sm:px-7 gap-4 border-t-2 border-tertiary  ${
+            className={`flex items-center w-full max-w-3xl p-5 sm:px-7 gap-4 border-t-2 border-tertiary  ${
               isUser ? "bg-primaryLight" : "bg-tertiary"
             }`}
           >
@@ -163,6 +184,8 @@ export default function Home() {
 
         {showFollupInput && (
           <TextArea
+            handleStop={handleStop}
+            generatingMessage={generatingMessage}
             isFirstMessage={false}
             input={followupInput}
             onChangeInput={onChangeFollowupInput}

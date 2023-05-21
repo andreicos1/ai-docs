@@ -1,11 +1,14 @@
 import IconSend from "public/icon-send.svg";
+import IconStop from "public/icon-stop.svg";
 import { useEffect, useRef } from "react";
 
 type Props = {
   input: string;
   onChangeInput: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onSubmit: (isFirstMessageMessage: boolean) => void;
+  handleStop?: () => void;
   isFirstMessage: boolean;
+  generatingMessage?: boolean;
   placeholder?: string;
   className?: string;
   [x: string]: any;
@@ -15,14 +18,17 @@ function TextArea({
   onSubmit,
   input,
   onChangeInput,
+  handleStop,
   isFirstMessage,
   className,
   placeholder,
+  generatingMessage,
   ...rest
 }: Props) {
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key === "Enter") {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
       onSubmit(isFirstMessage);
     }
   };
@@ -50,9 +56,15 @@ function TextArea({
         onKeyDown={handleKeyDown}
         onChange={onChangeInput}
       />
-      <button className="absolute top-[15px] right-3" onClick={handleSubmit}>
-        <IconSend className="fill-primary" />
-      </button>
+      {generatingMessage ? (
+        <button className="absolute top-[15px] right-3" onClick={handleStop}>
+          <IconStop className="fill-primary" />
+        </button>
+      ) : (
+        <button className="absolute top-[15px] right-3" onClick={handleSubmit}>
+          <IconSend className="fill-primary" />
+        </button>
+      )}
     </div>
   );
 }
