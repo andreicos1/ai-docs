@@ -6,8 +6,10 @@ module.exports = {
   ],
   theme: {
     backgroundColor: {
-      primary: "#0D1821",
+      primary: "#070e13",
+      primaryLight: "#122330",
       secondary: "#32392D",
+      secondaryDark: "#1A1B19",
       tertiary: "#1e374b",
     },
     textColor: {
@@ -18,6 +20,7 @@ module.exports = {
     colors: {
       primary: "#B18FCF",
       tertiary: "#1e374b",
+      white: "#FFFFFF",
     },
     extend: {
       fontSize: {

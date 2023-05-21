@@ -5,3 +5,13 @@
 .ai-answer pre {
   margin: 24px 0;
 }
+
+pre {
+  border-radius: 0.375rem;
+  font-size: 0.875em;
+  font-weight: 400;
+  overflow-x: auto;
+  background-color: black;
+  padding: 1rem;
+  width: 100%;
+}
