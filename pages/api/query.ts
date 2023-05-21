@@ -6,6 +6,7 @@ import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { OpenAI } from "langchain/llms/openai";
 import { PromptTemplate } from "langchain/prompts";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
+import { NextRequest } from "next/server";
 import {
   ChatGPTMessage,
   OpenAIStream,
@@ -122,7 +123,7 @@ async function getMessages(
   return firstMessages;
 }
 
-export default async function handler(req: any) {
+export default async function handler(req: NextRequest) {
   try {
     const { query, conversationId } = await req.json();
     const model = initializeOpenAI();

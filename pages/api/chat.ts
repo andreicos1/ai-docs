@@ -1,4 +1,5 @@
 import { kv } from "@vercel/kv";
+import { NextRequest } from "next/server";
 import {
   ChatGPTMessage,
   OpenAIStream,
@@ -15,7 +16,7 @@ async function getMessages(conversationId: string, query: string) {
   return [...previousMessages, newMessage];
 }
 
-export async function POST(req: Request) {
+export default async function handler(req: NextRequest) {
   console.log("received call");
   try {
     const { query, conversationId } = await req.json();
@@ -35,3 +36,7 @@ export async function POST(req: Request) {
     return new Response("Something went wrong.");
   }
 }
+
+export const config = {
+  runtime: "edge",
+};

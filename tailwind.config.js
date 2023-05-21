@@ -11,6 +11,7 @@ module.exports = {
       secondary: "#32392D",
       secondaryDark: "#1A1B19",
       tertiary: "#1e374b",
+      white: "#FFFFFF",
     },
     textColor: {
       primary: "#FFFFFF",
@@ -27,6 +28,19 @@ module.exports = {
         small: "0.875rem", // 14px
         medium: "1rem", // 16px
         large: "1.125rem", // 18px
+      },
+      keyframes: {
+        "pulse-custom": {
+          "0%, 100%": {
+            opacity: 1,
+          },
+          "50%": {
+            opacity: 0,
+          },
+        },
+      },
+      animation: {
+        "pulse-full": "pulse-custom 1.5s ease infinite",
       },
     },
   },

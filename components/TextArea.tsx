@@ -44,27 +44,32 @@ function TextArea({
 
   return (
     <div
-      className={`w-full max-w-3xl relative mb-8 ${className ? className : ""}`}
+      className={`w-full max-w-[816px] mb-8 px-6 ${className ? className : ""}`}
       {...rest}
     >
-      <textarea
-        ref={textAreaRef}
-        rows={1}
-        className="w-full overflow-hidden resize-none rounded-md h-10 px-3 py-3 pr-9 bg-secondary focus:outline-none"
-        placeholder={placeholder}
-        value={input}
-        onKeyDown={handleKeyDown}
-        onChange={onChangeInput}
-      />
-      {generatingMessage ? (
-        <button className="absolute top-[15px] right-3" onClick={handleStop}>
-          <IconStop className="fill-primary" />
-        </button>
-      ) : (
-        <button className="absolute top-[15px] right-3" onClick={handleSubmit}>
-          <IconSend className="fill-primary" />
-        </button>
-      )}
+      <div className="relative">
+        <textarea
+          ref={textAreaRef}
+          rows={1}
+          className="w-full overflow-hidden resize-none rounded-md h-10 px-3 py-3 pr-9 bg-secondary focus:outline-none"
+          placeholder={placeholder}
+          value={input}
+          onKeyDown={handleKeyDown}
+          onChange={onChangeInput}
+        />
+        {generatingMessage ? (
+          <button className="absolute top-[15px] right-3" onClick={handleStop}>
+            <IconStop className="fill-primary" />
+          </button>
+        ) : (
+          <button
+            className="absolute top-[15px] right-3"
+            onClick={handleSubmit}
+          >
+            <IconSend className="fill-primary" />
+          </button>
+        )}
+      </div>
     </div>
   );
 }

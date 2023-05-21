@@ -1,8 +1,6 @@
 import AiIcon from "public/ai-icon.svg";
 import IconUser from "public/icon-user.svg";
 import { useRef, useState } from "react";
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
 import { remark } from "remark";
 import html from "remark-html";
 import Layout from "../components/Layout";
@@ -48,6 +46,11 @@ export default function Home() {
   const handleSubmit = async (isFirstMessage: boolean) => {
     setLoading(true);
     setGeneratingMessage(true);
+    if (isFirstMessage) {
+      setFirstInput("");
+    } else {
+      setFollowupInput("");
+    }
     setPreviousMessages((previousMessages) =>
       isFirstMessage
         ? [
@@ -126,17 +129,21 @@ export default function Home() {
   const getChatContent = () => {
     if (loading) {
       return (
-        <p className="w-full max-w-3xl py-3 sm:py-5 leading-6">
-          <Skeleton baseColor="#a3a3a3" highlightColor="#c3c3c3" count={3} />
-        </p>
+        <div className="flex items-center w-full max-w-3xl p-5 sm:px-7 gap-4 border-t-2 border-tertiary bg-tertiary">
+          <AiIcon className="w-10 h-10 self-start fill-primary bg-secondaryDark" />
+          <span className="animate-pulse-full bg-white w-1 h-5"></span>
+        </div>
       );
     }
     if (chatHtml) {
       return (
-        <SanitizeHTML
-          className="flex-grow-1 p-6 sm:px-16 leading-6 ai-answer"
-          html={chatHtml}
-        />
+        <div className="flex items-center w-full max-w-3xl p-5 sm:px-7 gap-4 border-t-2 border-tertiary bg-tertiary">
+          <AiIcon className="w-10 h-10 self-start fill-primary bg-secondaryDark" />
+          <SanitizeHTML
+            className="flex-1 overflow-hidden leading-6 ai-answer"
+            html={chatHtml}
+          />
+        </div>
       );
     }
     if (!previousMessages.length && !chatHtml) {
