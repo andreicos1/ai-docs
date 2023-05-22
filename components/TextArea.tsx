@@ -2,7 +2,7 @@ import IconSend from "public/icon-send.svg";
 import IconStop from "public/icon-stop.svg";
 import { useEffect, useRef } from "react";
 
-type Props = {
+interface Props {
   input: string;
   onChangeInput: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onSubmit: (isFirstMessageMessage: boolean) => void;
@@ -12,7 +12,7 @@ type Props = {
   placeholder?: string;
   className?: string;
   [x: string]: any;
-};
+}
 
 function TextArea({
   onSubmit,

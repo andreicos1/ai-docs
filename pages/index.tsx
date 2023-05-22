@@ -15,10 +15,11 @@ const convertMarkdownToHtml = async (data: string) => {
   return processedContent.toString();
 };
 
-type Message = {
+interface Message {
   htmlContent: string;
   isUser: boolean;
-};
+  key: string;
+}
 
 export default function Home() {
   const [generatingMessage, setGeneratingMessage] = useState<boolean>(false);
@@ -58,6 +59,7 @@ export default function Home() {
             {
               htmlContent: firstInput,
               isUser: true,
+              key: generateRandomString(),
             },
           ]
         : [
@@ -65,6 +67,7 @@ export default function Home() {
             {
               htmlContent: followupInput,
               isUser: true,
+              key: generateRandomString(),
             },
           ]
     );
@@ -112,7 +115,7 @@ export default function Home() {
       reader.releaseLock();
       setPreviousMessages((previousMessages) => [
         ...previousMessages,
-        { htmlContent, isUser: false },
+        { htmlContent, isUser: false, key: generateRandomString() },
       ]);
       setGeneratingMessage(false);
       setChatHtml("");
@@ -166,9 +169,9 @@ export default function Home() {
           onChangeInput={onChangeFirstInput}
         />
 
-        {previousMessages.map(({ htmlContent, isUser }) => (
+        {previousMessages.map(({ htmlContent, isUser, key }) => (
           <div
-            key={generateRandomString()}
+            key={key}
             className={`flex items-center w-full max-w-3xl p-5 sm:px-7 gap-4 border-t-2 border-tertiary  ${
               isUser ? "bg-primaryLight" : "bg-tertiary"
             }`}
