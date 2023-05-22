@@ -1,22 +1,21 @@
-import { PineconeClient } from "@pinecone-database/pinecone";
 import { kv } from "@vercel/kv";
-import { LLMChain } from "langchain/chains";
 import { Document } from "langchain/dist/document";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
-import { OpenAI } from "langchain/llms/openai";
-import { PromptTemplate } from "langchain/prompts";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { NextRequest } from "next/server";
+import { PRE_VECTOR_QUERY } from "../../constants";
+import {
+  getComponentsToVectorQuery,
+  getVectorQueryResults,
+  initializeOpenAI,
+  initializePineCone,
+  initializePineconeIndex,
+} from "../../utils/langchain";
 import {
   ChatGPTMessage,
   OpenAIStream,
   OpenAIStreamPayload,
 } from "../../utils/openai-stream";
-
-const PRE_VECTOR_QUERY = `You will identify the relevant components being queried by the user.
-You will only output the components and make no other comments, as doing so would break the application.
-{query}.
-You must provide output as an array of strings. It is imperative to only return the array.`;
 
 const LLM_SYSTEM_PROMPT = `You are an expert Vue UI Storefront developer.
 You will provide a clear and concise answer to the given question, that includes the properties of the components and a code snippet.
@@ -31,63 +30,6 @@ const HEADERS_STREAM = {
   "Cache-Control": "no-cache, no-transform",
   "X-Accel-Buffering": "no",
 };
-
-function initializeOpenAI() {
-  return new OpenAI({
-    modelName: "gpt-3.5-turbo",
-    temperature: 0,
-    openAIApiKey: process.env.OPENAI_API_KEY,
-  });
-}
-
-async function initializePineCone() {
-  const pinecone = new PineconeClient();
-  await pinecone.init({
-    environment: `${process.env.PINECONE_ENVIRONMENT}`, //this is in the dashboard
-    apiKey: `${process.env.PINECONE_API_KEY}`,
-  });
-  return pinecone;
-}
-
-async function initializePineconeIndex(pinecone: PineconeClient) {
-  const pineconeIndex = pinecone.Index("vue-storefront");
-  await pineconeIndex.describeIndexStats({
-    describeIndexStatsRequest: {},
-  });
-  return pineconeIndex;
-}
-
-async function getComponentsToVectorQuery(
-  model: OpenAI,
-  query: string
-): Promise<string[]> {
-  try {
-    const preVectorQuery = new PromptTemplate({
-      template: PRE_VECTOR_QUERY,
-      inputVariables: ["query"],
-    });
-    const llmchain = new LLMChain({ llm: model, prompt: preVectorQuery });
-    const preVectorQueryResponse = await llmchain.call({
-      query: query,
-    });
-    return JSON.parse(preVectorQueryResponse.text);
-  } catch (error) {
-    console.log({ error });
-    return [];
-  }
-}
-
-async function getVectorQueryResults(
-  vectordbQueries: any,
-  vectorStore: PineconeStore
-) {
-  const context = [];
-  for (const query of vectordbQueries) {
-    const result = await vectorStore.similaritySearch(query, 1);
-    context.push(result[0]);
-  }
-  return context;
-}
 
 async function getMessages(
   conversationId: string,
@@ -129,9 +71,11 @@ export default async function handler(req: NextRequest) {
     const model = initializeOpenAI();
     const pinecone = await initializePineCone();
     const pineconeIndex = await initializePineconeIndex(pinecone);
-    const componentsToQuery = await getComponentsToVectorQuery(model, query);
-
-    console.log({ query, conversationId, pineconeIndex, componentsToQuery });
+    const componentsToQuery = await getComponentsToVectorQuery(
+      model,
+      query,
+      PRE_VECTOR_QUERY
+    );
 
     if (!componentsToQuery.length) {
       return new Response(

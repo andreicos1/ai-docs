@@ -22,7 +22,7 @@ type Message = {
 
 export default function Home() {
   const [generatingMessage, setGeneratingMessage] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false); // loading = true is the state before stream starts
   const [firstInput, setFirstInput] = useState<string>("");
   const [chatHtml, setChatHtml] = useState<string>("");
   const [conversationId, setConversationId] = useState<string>("");
@@ -44,6 +44,7 @@ export default function Home() {
   };
 
   const handleSubmit = async (isFirstMessage: boolean) => {
+    if (generatingMessage) return;
     setLoading(true);
     setGeneratingMessage(true);
     if (isFirstMessage) {
@@ -127,29 +128,25 @@ export default function Home() {
   };
 
   const getChatContent = () => {
-    if (loading) {
-      return (
-        <div className="flex items-center w-full max-w-3xl p-5 sm:px-7 gap-4 border-t-2 border-tertiary bg-tertiary">
-          <AiIcon className="w-10 h-10 self-start fill-primary bg-secondaryDark" />
-          <span className="animate-pulse-full bg-white w-1 h-5"></span>
-        </div>
-      );
-    }
-    if (chatHtml) {
-      return (
-        <div className="flex items-center w-full max-w-3xl p-5 sm:px-7 gap-4 border-t-2 border-tertiary bg-tertiary">
-          <AiIcon className="w-10 h-10 self-start fill-primary bg-secondaryDark" />
-          <SanitizeHTML
-            className="flex-1 overflow-hidden leading-6 ai-answer"
-            html={chatHtml}
-          />
-        </div>
-      );
-    }
     if (!previousMessages.length && !chatHtml) {
       return (
         <div className="grow flex items-center text-primary">
           <h1 className="text-2xl">QA Storefront-UI v0.13.6</h1>
+        </div>
+      );
+    }
+    if (chatHtml || loading) {
+      return (
+        <div className="flex items-center w-full max-w-3xl p-5 sm:px-7 gap-4 border-t-2 border-tertiary bg-tertiary">
+          <AiIcon className="w-10 h-10 self-start fill-primary bg-secondaryDark" />
+          {loading ? (
+            <span className="animate-pulse-full bg-white w-1 h-5"></span>
+          ) : (
+            <SanitizeHTML
+              className="flex-1 overflow-hidden leading-6 ai-answer"
+              html={chatHtml}
+            />
+          )}
         </div>
       );
     }
@@ -181,10 +178,16 @@ export default function Home() {
             ) : (
               <AiIcon className="w-10 h-10 self-start fill-primary bg-secondaryDark" />
             )}
-            <SanitizeHTML
-              className="flex-1 overflow-hidden leading-6 ai-answer"
-              html={htmlContent}
-            />
+            {isUser ? (
+              <div className="flex-1 overflow-hidden leading-6 ai-answer">
+                {htmlContent}
+              </div>
+            ) : (
+              <SanitizeHTML
+                className="flex-1 overflow-hidden leading-6 ai-answer"
+                html={htmlContent}
+              />
+            )}
           </div>
         ))}
         {getChatContent()}
