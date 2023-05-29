@@ -51,19 +51,19 @@ function TextArea({
         <textarea
           ref={textAreaRef}
           rows={1}
-          className="w-full overflow-hidden resize-none rounded-md h-10 px-3 py-3 pr-9 bg-secondary focus:outline-none"
+          className="w-full overflow-auto resize-none rounded-md h-10 max-h-96 px-3 py-3 pr-9 bg-secondary focus:outline-none"
           placeholder={placeholder}
           value={input}
           onKeyDown={handleKeyDown}
           onChange={onChangeInput}
         />
         {generatingMessage ? (
-          <button className="absolute top-[15px] right-3" onClick={handleStop}>
+          <button className="absolute top-[15px] right-4" onClick={handleStop}>
             <IconStop className="fill-primary" />
           </button>
         ) : (
           <button
-            className="absolute top-[15px] right-3"
+            className="absolute top-[15px] right-4"
             onClick={handleSubmit}
           >
             <IconSend className="fill-primary" />

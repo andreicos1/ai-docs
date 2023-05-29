@@ -79,7 +79,7 @@ export default async function handler(req: NextRequest) {
 
     if (!componentsToQuery.length) {
       return new Response(
-        "I'm sorry, but I couldn't find any relevant components to your query. Please try again."
+        "I'm sorry, but I couldn't find anything relevant in my data. Please try again."
       );
     }
 

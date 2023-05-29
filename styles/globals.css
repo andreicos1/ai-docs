@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Used to style code from the AI answer */
 .ai-answer pre {
   margin: 24px 0;
 }
@@ -14,4 +15,19 @@ pre {
   background-color: black;
   padding: 1rem;
   width: 100%;
+}
+
+/* This will apply to all scrollbars on the webpage */
+::-webkit-scrollbar {
+  width: 12px; /* width of the entire scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: #444; /* color of the tracking area */
+  border-radius: 10px; /* roundness of the tracking area */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #0d1821; /* color of the scroll thumb */
+  border-radius: 10px; /* roundness of the scroll thumb */
 }

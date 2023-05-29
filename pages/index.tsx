@@ -134,7 +134,7 @@ export default function Home() {
     if (!previousMessages.length && !chatHtml) {
       return (
         <div className="grow flex items-center text-primary">
-          <h1 className="text-2xl">QA Storefront-UI v0.13.6</h1>
+          <h1 className="text-2xl">Chat with your docs</h1>
         </div>
       );
     }
