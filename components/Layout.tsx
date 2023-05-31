@@ -1,5 +1,5 @@
-import Head from "next/head";
-import { ReactNode } from "react";
+import Head from "next/head"
+import { ReactNode } from "react"
 
 const Layout = ({ children }: { children: ReactNode }) => {
   return (
@@ -12,7 +12,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
       </Head>
       <div className="bg-primary text-primary">{children}</div>
     </>
-  );
-};
+  )
+}
 
-export default Layout;
+export default Layout

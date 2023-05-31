@@ -1,17 +1,17 @@
-import IconSend from "public/icon-send.svg";
-import IconStop from "public/icon-stop.svg";
-import { useEffect, useRef } from "react";
+import IconSend from "public/icon-send.svg"
+import IconStop from "public/icon-stop.svg"
+import { useEffect, useRef } from "react"
 
 interface Props {
-  input: string;
-  onChangeInput: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  onSubmit: (isFirstMessageMessage: boolean) => void;
-  handleStop?: () => void;
-  isFirstMessage: boolean;
-  generatingMessage?: boolean;
-  placeholder?: string;
-  className?: string;
-  [x: string]: any;
+  input: string
+  onChangeInput: (event: React.ChangeEvent<HTMLTextAreaElement>) => void
+  onSubmit: (isFirstMessageMessage: boolean) => void
+  handleStop?: () => void
+  isFirstMessage: boolean
+  generatingMessage?: boolean
+  placeholder?: string
+  className?: string
+  [x: string]: any
 }
 
 function TextArea({
@@ -25,28 +25,25 @@ function TextArea({
   generatingMessage,
   ...rest
 }: Props) {
-  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      onSubmit(isFirstMessage);
+      event.preventDefault()
+      onSubmit(isFirstMessage)
     }
-  };
+  }
 
-  const handleSubmit = () => onSubmit(isFirstMessage);
+  const handleSubmit = () => onSubmit(isFirstMessage)
 
   useEffect(() => {
     if (textAreaRef.current) {
-      textAreaRef.current.style.height = "auto";
-      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
+      textAreaRef.current.style.height = "auto"
+      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`
     }
-  }, [input]);
+  }, [input])
 
   return (
-    <div
-      className={`w-full max-w-[816px] mb-8 px-6 ${className ? className : ""}`}
-      {...rest}
-    >
+    <div className={`w-full max-w-[816px] mb-8 px-6 ${className ? className : ""}`} {...rest}>
       <div className="relative">
         <textarea
           ref={textAreaRef}
@@ -62,16 +59,13 @@ function TextArea({
             <IconStop className="fill-primary" />
           </button>
         ) : (
-          <button
-            className="absolute top-[15px] right-4"
-            onClick={handleSubmit}
-          >
+          <button className="absolute top-[15px] right-4" onClick={handleSubmit}>
             <IconSend className="fill-primary" />
           </button>
         )}
       </div>
     </div>
-  );
+  )
 }
 
-export default TextArea;
+export default TextArea
