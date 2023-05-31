@@ -8,7 +8,7 @@ import {
 } from "../../utils/langchain"
 import { ChatGPTMessage, OpenAIStream, OpenAIStreamPayload } from "../../utils/openai-stream"
 
-async function getMessages(conversationId: string, query: string, context: null | string[]) {
+async function getMessages(conversationId: string, query: string, context: null | string[]): Promise<ChatGPTMessage[]> {
   let messageContent = query
   if (context) {
     messageContent = `Question: ${query}\n. Documentation: ${formatContext(context)}`

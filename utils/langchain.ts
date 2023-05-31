@@ -4,12 +4,12 @@ import { PromptTemplate } from "langchain/prompts"
 import weaviate, { ApiKey, WeaviateClient } from "weaviate-ts-client"
 import { PRE_VECTOR_QUERY } from "../constants"
 
-function buildGqlQuery(concepts: string[]) {
+function buildGqlQuery(concepts: string[]): string {
   return `{
     Get {
       Article(nearText: {
         concepts: ${JSON.stringify(concepts)}
-      }, limit: ${concepts.length}) {
+      }, limit: ${concepts.length + 2}) {
         content
       }
     }
@@ -25,7 +25,7 @@ export function initializeWeaviate(): WeaviateClient {
   })
 }
 
-export function initializeOpenAI() {
+export function initializeOpenAI(): OpenAI {
   return new OpenAI({
     modelName: "gpt-3.5-turbo",
     temperature: 0,
