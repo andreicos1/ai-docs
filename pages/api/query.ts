@@ -1,15 +1,11 @@
 import { kv } from "@vercel/kv";
-import { Document } from "langchain/dist/document";
-import { OpenAIEmbeddings } from "langchain/embeddings/openai";
-import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { NextRequest } from "next/server";
 import { PRE_VECTOR_QUERY } from "../../constants";
 import {
+  formatContext,
   getComponentsToVectorQuery,
-  getVectorQueryResults,
   initializeOpenAI,
-  initializePineCone,
-  initializePineconeIndex,
+  queryData,
 } from "../../utils/langchain";
 import {
   ChatGPTMessage,
@@ -19,9 +15,10 @@ import {
 
 const LLM_SYSTEM_PROMPT = `You are an expert Vue UI Storefront developer.
 You will provide a clear and concise answer to the given question, that includes the properties of the components and a code snippet.
-The code provided is relevant source code. This is NOT my code. It is SOURCE CODE that you must use to answer the question.
+You are provided documentation for relevant components from the UI Storefront library.
 You must provide the answer in markdown format.
-Use the components that make the most sense in a production environment. Try to use the given components, not the ones making them up.
+Use the components that make the most sense in a production environment. Use the components from the UI Storefront documentation.
+Note that all components are named like this: 'Sidebar --> SfSidebar', 'AddToCart --> SfAddToCart'
 `;
 
 const HEADERS_STREAM = {
@@ -34,12 +31,10 @@ const HEADERS_STREAM = {
 async function getMessages(
   conversationId: string,
   query: string,
-  context: Document<Record<string, any>>[]
+  context: string[]
 ): Promise<ChatGPTMessage[]> {
-  const stringDocuments = context.reduce((prev, curr) => {
-    return prev + curr.pageContent + "\n";
-  }, "");
-  const messageContent = `Question: ${query}\n. Code: ${stringDocuments}`;
+  const stringDocuments = formatContext(context);
+  const messageContent = `Question: ${query}\n. Documentation: ${stringDocuments}`;
 
   const firstMessages: ChatGPTMessage[] = [
     {
@@ -69,8 +64,7 @@ export default async function handler(req: NextRequest) {
   try {
     const { query, conversationId } = await req.json();
     const model = initializeOpenAI();
-    const pinecone = await initializePineCone();
-    const pineconeIndex = await initializePineconeIndex(pinecone);
+
     const componentsToQuery = await getComponentsToVectorQuery(
       model,
       query,
@@ -83,11 +77,7 @@ export default async function handler(req: NextRequest) {
       );
     }
 
-    const vectorStore = await PineconeStore.fromExistingIndex(
-      new OpenAIEmbeddings(),
-      { pineconeIndex }
-    );
-    const context = await getVectorQueryResults(componentsToQuery, vectorStore);
+    const context = await queryData(componentsToQuery);
     const outboundMessages = await getMessages(conversationId, query, context);
 
     const payload: OpenAIStreamPayload = {

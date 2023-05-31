@@ -17,7 +17,6 @@ const nextConfig = {
       replicate: "replicate",
       "srt-parser-2": "srt-parser-2",
       typeorm: "typeorm",
-      "weaviate-ts-client": "weaviate-ts-client",
     });
     config.module.rules.push({
       test: /\.svg$/,

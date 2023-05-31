@@ -20,6 +20,7 @@ pre {
 /* This will apply to all scrollbars on the webpage */
 ::-webkit-scrollbar {
   width: 12px; /* width of the entire scrollbar */
+  background: #444; /* color of the entire scrollbar */
 }
 
 ::-webkit-scrollbar-track {

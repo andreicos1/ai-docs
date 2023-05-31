@@ -1,16 +1,11 @@
 import { kv } from "@vercel/kv";
-import { Document } from "langchain/dist/document";
-import { OpenAIEmbeddings } from "langchain/embeddings/openai";
-import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { NextRequest } from "next/server";
 import { PRE_VECTOR_QUERY } from "../../constants";
 import {
+  formatContext,
   getComponentsToVectorQuery,
-  getStringFromDocuments,
   getVectorQueryResults,
   initializeOpenAI,
-  initializePineCone,
-  initializePineconeIndex,
 } from "../../utils/langchain";
 import {
   ChatGPTMessage,
@@ -21,12 +16,13 @@ import {
 async function getMessages(
   conversationId: string,
   query: string,
-  context?: Document<Record<string, any>>[]
+  context: null | string[]
 ) {
   let messageContent = query;
   if (context) {
-    const stringDocuments = getStringFromDocuments(context);
-    messageContent = `Question: ${query}\n. Code: ${stringDocuments}`;
+    messageContent = `Question: ${query}\n. Documentation: ${formatContext(
+      context
+    )}`;
   }
   let previousMessages = await kv.lrange<ChatGPTMessage>(conversationId, 0, -1);
   const newMessage: ChatGPTMessage = {
@@ -37,10 +33,9 @@ async function getMessages(
   return [...previousMessages, newMessage];
 }
 
-async function getContext(query: string) {
+async function getContext(query: string): Promise<null | string[]> {
   const model = initializeOpenAI();
-  const pinecone = await initializePineCone();
-  const pineconeIndex = await initializePineconeIndex(pinecone);
+
   const componentsToQuery = await getComponentsToVectorQuery(
     model,
     query,
@@ -48,14 +43,10 @@ async function getContext(query: string) {
   );
 
   if (!componentsToQuery.length) {
-    return;
+    return null;
   }
 
-  const vectorStore = await PineconeStore.fromExistingIndex(
-    new OpenAIEmbeddings(),
-    { pineconeIndex }
-  );
-  return await getVectorQueryResults(componentsToQuery, vectorStore);
+  return await getVectorQueryResults(componentsToQuery);
 }
 
 export default async function handler(req: NextRequest) {
