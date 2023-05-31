@@ -1,6 +1,5 @@
 import { kv } from "@vercel/kv"
 import { NextRequest } from "next/server"
-import { PRE_VECTOR_QUERY } from "../../constants"
 import {
   formatContext,
   getComponentsToVectorQuery,
@@ -26,7 +25,7 @@ async function getMessages(conversationId: string, query: string, context: null 
 async function getContext(query: string): Promise<null | string[]> {
   const model = initializeOpenAI()
 
-  const componentsToQuery = await getComponentsToVectorQuery(model, query, PRE_VECTOR_QUERY)
+  const componentsToQuery = await getComponentsToVectorQuery(model, query)
 
   if (!componentsToQuery.length) {
     return null

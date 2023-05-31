@@ -8,8 +8,6 @@ import SanitizeHTML from "../components/SanitizeHtml"
 import TextArea from "../components/TextArea"
 import generateRandomString from "../utils/generateRandomString"
 
-// TODO: Move the chatHtml state to a child component
-
 const convertMarkdownToHtml = async (data: string) => {
   const processedContent = await remark().use(html).process(data)
   return processedContent.toString()

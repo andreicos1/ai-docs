@@ -2,6 +2,7 @@ import { OpenAI } from "langchain"
 import { LLMChain } from "langchain/chains"
 import { PromptTemplate } from "langchain/prompts"
 import weaviate, { ApiKey, WeaviateClient } from "weaviate-ts-client"
+import { PRE_VECTOR_QUERY } from "../constants"
 
 function buildGqlQuery(concepts: string[]) {
   return `{
@@ -32,10 +33,10 @@ export function initializeOpenAI() {
   })
 }
 
-export async function getComponentsToVectorQuery(model: OpenAI, query: string, template: string): Promise<string[]> {
+export async function getComponentsToVectorQuery(model: OpenAI, query: string): Promise<string[]> {
   try {
     const preVectorQuery = new PromptTemplate({
-      template,
+      template: PRE_VECTOR_QUERY,
       inputVariables: ["query"],
     })
     const llmchain = new LLMChain({ llm: model, prompt: preVectorQuery })
@@ -49,13 +50,13 @@ export async function getComponentsToVectorQuery(model: OpenAI, query: string, t
   }
 }
 
-export function formatContext(context: string[]) {
-  context.reduce((prev, curr) => {
+export function formatContext(context: string[]): string {
+  return context.reduce((prev, curr) => {
     return prev + curr + "\n-------------------------------------------------\n"
   }, "")
 }
 
-export async function queryData(concepts: string[]) {
+export async function queryData(concepts: string[]): Promise<string[]> {
   try {
     const query = buildGqlQuery(concepts)
 
@@ -72,6 +73,7 @@ export async function queryData(concepts: string[]) {
     return result.data.Get.Article.map(({ content }: { content: string }) => content)
   } catch (error) {
     console.log({ error })
+    return []
   }
 }
 
@@ -79,7 +81,7 @@ export async function getVectorQueryResults(vectordbQueries: string[]): Promise<
   const context = []
   for (const query of vectordbQueries) {
     const result = await queryData([query])
-    context.push(result)
+    context.push(result[0])
   }
   return context
 }

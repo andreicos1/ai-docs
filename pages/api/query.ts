@@ -1,6 +1,5 @@
 import { kv } from "@vercel/kv"
 import { NextRequest } from "next/server"
-import { PRE_VECTOR_QUERY } from "../../constants"
 import { formatContext, getComponentsToVectorQuery, initializeOpenAI, queryData } from "../../utils/langchain"
 import { ChatGPTMessage, OpenAIStream, OpenAIStreamPayload } from "../../utils/openai-stream"
 
@@ -52,7 +51,7 @@ export default async function handler(req: NextRequest) {
     const { query, conversationId } = await req.json()
     const model = initializeOpenAI()
 
-    const componentsToQuery = await getComponentsToVectorQuery(model, query, PRE_VECTOR_QUERY)
+    const componentsToQuery = await getComponentsToVectorQuery(model, query)
 
     if (!componentsToQuery.length) {
       return new Response("I'm sorry, but I couldn't find anything relevant in my data. Please try again.")
