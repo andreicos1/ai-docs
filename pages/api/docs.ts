@@ -88,7 +88,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const { path } = req.body
     const client = initializeWeaviate()
-    // await setUpNewDocument(client, path)
+    await setUpNewDocument(client, path)
     res.status(200).send("done")
   } catch (error) {
     console.log("error", error)
